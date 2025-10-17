@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7
+    container_name: offro-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: offro2024secure
+      MONGO_INITDB_DATABASE: offrociotola
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - offro-network
+
+  # Node.js API Server
+  api:
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: offro-api
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=development
+      - PORT=8080
+      - MONGODB_URI=mongodb://admin:offro2024secure@mongodb:27017/offrociotola?authSource=admin
+      - JWT_SECRET=offro-ciotola-super-secret-key-2024-change-in-production
+      - JWT_EXPIRE=7d
+    depends_on:
+      - mongodb
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - offro-network
+    command: npm run dev
+
+networks:
+  offro-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
