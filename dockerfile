@@ -13,7 +13,7 @@ COPY package*.json ./
 
 # Installa dipendenze
 # RUN npm ci --only=production
-RUN npm install
+RUN npm install --omit=dev
 
 # Copia codice sorgente
 COPY . .

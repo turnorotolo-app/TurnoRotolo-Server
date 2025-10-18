@@ -80,7 +80,7 @@ const GroupSchema = new mongoose.Schema({
 });
 
 // Index per performance
-GroupSchema.index({ inviteCode: 1 });
+// GroupSchema.index({ inviteCode: 1 });
 GroupSchema.index({ adminId: 1 });
 GroupSchema.index({ 'members.userId': 1 });
 
