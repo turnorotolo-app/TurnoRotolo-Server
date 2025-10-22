@@ -3,7 +3,7 @@ FROM node:20-alpine
 
 # Metadata
 LABEL maintainer="Nicola S."
-LABEL description="TurnoRotolo Backend API"
+LABEL description="RotoloTurno Backend API"
 
 # Crea directory app
 WORKDIR /app

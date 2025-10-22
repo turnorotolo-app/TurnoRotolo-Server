@@ -52,7 +52,7 @@ app.use('/api/', limiter);
 app.get('/', (req, res) => {
   res.json({
     success: true,
-    message: '🍕 ofFRO CIOtola API v1.0',
+    message: 'RotoloTurno API v1.0',
     status: 'running',
     environment: process.env.NODE_ENV,
     timestamp: new Date().toISOString()
@@ -62,7 +62,7 @@ app.get('/', (req, res) => {
 app.get('/api', (req, res) => {
   res.json({
     success: true,
-    message: 'ofFRO CIOtola API',
+    message: 'RotoloTurno API',
     version: '1.0.0',
     endpoints: {
       auth: '/api/auth',
@@ -77,7 +77,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/orders', orderRoutes);
 
-// --- CORREZIONE QUI ---
 // Gestore 404 (deve essere dopo tutte le altre rotte e prima del gestore di errori)
 // Rimuoviamo il percorso '*' e usiamo un middleware standard.
 app.use((req, res, next) => {
@@ -95,7 +94,7 @@ app.use(errorHandler);
 // ====================================
 const server = app.listen(PORT, () => {
   console.log('=================================');
-  console.log('🍕 ofFRO CIOtola Backend API');
+  console.log('RotoloTurno Backend API');
   console.log('=================================');
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📍 Environment: ${process.env.NODE_ENV}`);

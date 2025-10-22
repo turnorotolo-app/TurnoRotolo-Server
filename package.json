@@ -1,7 +1,7 @@
 {
-  "name": "offro-ciotola-backend",
+  "name": "rotoloturno-backend",
   "version": "1.0.0",
-  "description": "Backend API per TurnoRotolo",
+  "description": "Backend API per RotoloTurno",
   "main": "server.js",
   "type": "module",
   "scripts": {
