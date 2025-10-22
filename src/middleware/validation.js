@@ -36,7 +36,7 @@ export const validateRegister = [
     .normalizeEmail(),
   
   body('password')
-    .notEmpty().withMessage('La password è obbligatoria')
+    .notEmpty().withMessage('La password è obbligatorIA')
     .isLength({ min: 6 }).withMessage('La password deve avere almeno 6 caratteri'),
   
   handleValidationErrors
@@ -48,12 +48,12 @@ export const validateRegister = [
 export const validateLogin = [
   body('email')
     .trim()
-    .notEmpty().withMessage('L\'email è obbligatoria')
+    .notEmpty().withMessage('L\'email è obbligatorIA')
     .isEmail().withMessage('Email non valida')
     .normalizeEmail(),
   
   body('password')
-    .notEmpty().withMessage('La password è obbligatoria'),
+    .notEmpty().withMessage('La password è obbligatorIA'),
   
   handleValidationErrors
 ];
@@ -116,6 +116,10 @@ export const validateCreateOrder = [
     .trim()
     .isLength({ max: 500 }).withMessage('Le note non possono superare 500 caratteri'),
   
+  body('manualPersonId')
+    .optional()
+    .isMongoId().withMessage('ID persona manuale non valido'),
+
   handleValidationErrors
 ];
 

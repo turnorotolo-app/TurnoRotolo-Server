@@ -58,6 +58,19 @@ const OrderSchema = new mongoose.Schema({
     type: String,
     maxlength: [500, 'Le note non possono superare 500 caratteri']
   },
+  wasManualOverride: {
+    type: Boolean,
+    default: false
+  },
+  suggestedPersonId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null
+  },
+  suggestedPersonName: {
+    type: String,
+    default: null
+  },
   createdAt: {
     type: Date,
     default: Date.now

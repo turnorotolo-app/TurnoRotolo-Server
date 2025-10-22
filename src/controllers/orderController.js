@@ -9,7 +9,7 @@ import { calculateScore, calculateGroupStats } from '../utils/scoreCalculator.js
  */
 export const createOrder = async (req, res, next) => {
   try {
-    const { groupId, restaurant, distance, wait, money, notes } = req.body;
+    const { groupId, restaurant, distance, wait, money, notes, manualPersonId } = req.body;
 
     // Trova gruppo
     const group = await Group.findById(groupId);
@@ -33,15 +33,42 @@ export const createOrder = async (req, res, next) => {
       });
     }
 
-    // Determina chi va a ritirare (punteggio più basso)
-    const nextPerson = group.getNextPerson();
-
-    if (!nextPerson) {
+    // Determina chi DOVREBBE andare (punteggio più basso)
+    const suggestedPerson = group.getNextPerson();
+    if (!suggestedPerson) {
       return res.status(400).json({
         success: false,
         error: 'Nessun membro disponibile nel gruppo'
       });
     }
+
+    let personForOrder;
+    let wasManualOverride = false;
+    let suggestedPersonId = null;
+    let suggestedPersonName = null;
+    let responseMessage;
+
+    if (manualPersonId && manualPersonId !== suggestedPerson.userId.toString()) {
+      personForOrder = group.members.find(
+        m => m.userId.toString() === manualPersonId
+      );
+
+      if (!personForOrder) {
+        return res.status(404).json({
+          success: false,
+          error: 'Persona selezionata manualmente non trovata nel gruppo'
+        });
+      }
+      wasManualOverride = true;
+      suggestedPersonId = suggestedPerson.userId;
+      suggestedPersonName = suggestedPerson.name;
+      responseMessage = `🎉 Ordine creato! ${personForOrder.name} andrà a ritirare al posto di ${suggestedPerson.name}`;
+    } else {
+      // Scelta standard (o manuale che conferma il suggerito)
+      personForOrder = suggestedPerson;
+      responseMessage = `🎉 Ordine creato! ${personForOrder.name} andrà a ritirare`;
+    }
+
 
     // Calcola punteggio
     const score = calculateScore(distance, wait, money, group.weights);
@@ -49,27 +76,30 @@ export const createOrder = async (req, res, next) => {
     // Crea ordine
     const order = await Order.create({
       groupId,
-      personId: nextPerson.userId,
-      personName: nextPerson.name,
+      personId: personForOrder.userId,
+      personName: personForOrder.name,
       restaurant,
       distance,
       wait,
       money,
       score,
-      notes
+      notes,
+      wasManualOverride,
+      suggestedPersonId,
+      suggestedPersonName
     });
 
-    // Aggiorna punteggio del membro nel gruppo
-    await group.updateMemberScore(nextPerson.userId, score);
+    // Aggiorna punteggio
+    await group.updateMemberScore(personForOrder.userId, score);
 
     res.status(201).json({
       success: true,
-      message: `🎉 Ordine creato! ${nextPerson.name} andrà a ritirare (+${score} punti)`,
+      message: `${responseMessage} (+${score} punti)`,
       data: { 
         order,
         nextPerson: {
-          name: nextPerson.name,
-          newScore: nextPerson.score + score
+          name: personForOrder.name,
+          newScore: personForOrder.score + score
         }
       }
     });
@@ -144,6 +174,7 @@ export const getOrder = async (req, res, next) => {
     const order = await Order.findById(req.params.id)
       .populate('groupId', 'name')
       .populate('personId', 'name email');
+      // Anche qui, i nuovi campi sono già inclusi
 
     if (!order) {
       return res.status(404).json({
@@ -251,6 +282,8 @@ export const getGroupOrderStats = async (req, res, next) => {
 
     // Calcola statistiche
     const stats = calculateGroupStats(group.members, orders);
+    const totalOverrides = orders.filter(o => o.wasManualOverride).length;
+    const overridePercentage = orders.length > 0 ? (totalOverrides / orders.length) * 100 : 0;
 
     // Statistiche aggiuntive per parametri
     const distanceStats = {
@@ -286,6 +319,8 @@ export const getGroupOrderStats = async (req, res, next) => {
       success: true,
       data: {
         ...stats,
+        totalOverrides,
+        overridePercentage: parseFloat(overridePercentage.toFixed(1)),
         distanceStats,
         waitStats,
         moneyStats,
