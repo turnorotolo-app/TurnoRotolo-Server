@@ -117,7 +117,7 @@ export const validateCreateOrder = [
     .isLength({ max: 500 }).withMessage('Le note non possono superare 500 caratteri'),
   
   body('manualPersonId')
-    .optional()
+    .optional({ nullable: true })
     .isMongoId().withMessage('ID persona manuale non valido'),
 
   handleValidationErrors
