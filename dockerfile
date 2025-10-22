@@ -26,4 +26,4 @@ EXPOSE 8080
 #   CMD node -e "require('http').get('http://localhost:8080/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
 # Avvia applicazione
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "start"]
