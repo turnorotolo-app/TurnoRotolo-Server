@@ -21,6 +21,10 @@ connectDB();
 const app = express();
 const PORT = process.env.PORT || 8080;
 
+// Imposto 'trust proxy' per funzionare dietro reverse proxy (es. Railway)
+// Questo è necessario per far funzionare correttamente express-rate-limit e per ottenere l'IP corretto dell'utente.
+app.set('trust proxy', 1);
+
 // ====================================
 // MIDDLEWARE
 // ====================================
